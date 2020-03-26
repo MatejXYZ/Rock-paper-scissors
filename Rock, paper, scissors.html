@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet"> 
+
+        <style> 
+html {
+    box-sizing: border-box;
+}
+* {
+    box-sizing: inherit;
+}
+body {
+    width:1920px;
+    height: 910px;
+    margin:25px auto auto auto;
+    /*font-family: 'Source Sans Pro', sans-serif;*/
+    font-family: 'Bebas Neue', cursive;
+    font-size: 28px;
+    background-color: #79d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#input {
+    margin:auto;
+    width:9.5em;
+    height:50px;
+    border: solid 6px;
+    background-color: #c6c;
+    font-family: inherit;
+    font-size: inherit;
+    position: absolute;
+    left:40%;
+    right:40%;
+    top:50%;
+}
+#machine {
+    margin: auto 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 900px;
+    min-width:900px;
+    border:solid 5px;
+    background-color: #c99;
+}
+
+#humanInterface, #computerInterface {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border:solid 5px;
+    height: 150px;
+}
+#playfield {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border:solid 3px;
+    height: 300px;
+}
+.interactive:hover{
+    color: #cc6;
+    text-shadow: -3px 0px 0 black;
+}
+/*
+#message {
+    }*/
+#machine, #humanInterface, #computerInterface, #playfield {
+    flex:none;
+}
+.weapon {
+    transition: all 400ms;
+    width:100px;
+    border-radius: 100%;
+}
+.shining {
+    box-shadow: 1px 1px 0px 5px beige;
+}
+.visibility {
+    display: none;
+}
+.score {
+    font-size: 350px;
+}
+.weapon {
+    height:100px;
+    width: auto;
+    margin: auto 15px;
+}
+.info {
+    margin-left:30px;
+    height:80px;
+    margin:auto;
+    width:90%;
+}
+/*
+.life {
+    }
+.death {
+}
+*/
+
+        </style>
+    </head>
+    <body>
+        <img class='avatar'>
+        <div id='computerScore' class='score'></div>
+        <div id='machine'>
+            <span id='nick' class='info'></span>
+            <div id='computerInterface' class='interface'>
+                <img class='weapon'>
+                <img class='weapon'>
+                <img class='weapon'>
+            </div>
+            <div id='playfield'>
+                <img id='life' class='lifeAndDeath visibility'>
+                <img id='death' class='lifeAndDeath visibility'>
+            </div>
+            <div id='humanInterface' class='interface'>
+                <img class='weapon'>
+                <img class='weapon'>
+                <img class='weapon'>
+        </div>
+        <div id='message' class='info'></div>
+    </div>
+        <div id='humanScore' class='score'></div>
+        <img class='avatar'>
+        <script>
+let body = document.querySelector('body');
+let message = document.querySelector('#message');
+let name;
+let computerTotalScore = 0;
+let computerScore = 0;
+let humanTotalScore = 0;
+let humanScore = 0;
+let computerDisplayScore = document.querySelector('#computerScore');
+let humanDisplayScore = document.querySelector('#humanScore');
+humanDisplayScore.textContent = humanScore;
+computerDisplayScore.textContent = computerScore;
+let roundNumberCurrent;
+let roundNumber = 0;
+let messageRound;
+function countRounds() {
+    ((roundNumber !== 0) && (roundNumber % 5 === 0)) ? roundNumberCurrent = 5 : roundNumberCurrent = roundNumber % 5;
+    messageRound = `Round: ${roundNumberCurrent}`;
+}
+countRounds();
+let humanInterface = document.querySelector('#humanInterface');
+let computerInterface = document.querySelector('#computerInterface');
+let winner;
+let messageDetail = document.createElement('div');
+messageDetail.style.marginLeft = '20vw'
+let life = document.querySelector('#life');
+let death = document.querySelector('#death');
+let playfield = document.querySelector('#playfield')
+let lifeClone = life.cloneNode(true);
+let lifeCloneTwo = life.cloneNode(true);
+let deathClone = death.cloneNode(true);
+let deathCloneTwo = death.cloneNode(true);
+playfield.appendChild(deathClone)
+playfield.appendChild(deathCloneTwo);
+playfield.appendChild(lifeClone);
+playfield.appendChild(lifeCloneTwo);
+let humanGameScore = 0;
+let computerGameScore = 0;
+    computerInterface.children.item(0).setAttribute('src',`https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/computer0_xzoj3q.png`);
+    computerInterface.children.item(1).setAttribute('src',`https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/computer1_u9cy5n.png`);
+    computerInterface.children.item(2).setAttribute('src',`https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/computer2_zyc264.png`);
+    humanInterface.children.item(0).setAttribute('src',`https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/human0_yczaix.png`);
+    humanInterface.children.item(1).setAttribute('src',`https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/human1_om8l5w.png`);
+    humanInterface.children.item(2).setAttribute('src',`https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/human2_vg3chu.png`);
+let avatars = document.querySelectorAll('.avatar');
+avatars.item(0).style = ('width:300px;margin-right:20px;');
+//background-color:#d97;border-radius:30px;')
+avatars.item(1).style = ('width:300px;');
+//background-color:#d97;border-radius:30px;')
+avatars.item(0).setAttribute('src', 'https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/computer_j0f2ms.png');
+avatars.item(1).setAttribute('src','https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/human_a5johz.png');
+let deaths = [death, deathClone, deathCloneTwo];
+deaths.forEach(img => img.setAttribute('src','https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/death_ukgpno.png'));
+let lives = [life, lifeClone, lifeCloneTwo];
+lives.forEach(img => img.setAttribute('src', 'https://res.cloudinary.com/darwdiudk/image/upload/v1585242591/Rock%2C%20paper%2C%20scissors%20images/life_ngyxbt.png'));
+let input = document.createElement('input');
+let weapons = document.querySelectorAll('.weapon');
+
+function begin() {
+    function playGame() {
+        function playRound() {
+            function transitionChosen() {
+                event.target.classList.add('shining');
+            }
+            function singleRound(human) {
+                function computerPlay() {
+                    let lock;
+                    while (!lock) {
+                        pickRandom();
+                        }
+                    function pickRandom() {
+                        chance = Math.random();
+                        if (chance <= 0.3) {
+                            result = 'Rock';
+                    } 
+                    else if (chance <= 0.6) {
+                        result = 'Scissors';
+                    } 
+                    else if (chance <= 0.9) {
+                        result = 'Paper';
+                    }
+                    else if (chance > 0.9) return;
+                    lock = 1;
+                    return;
+                    }
+                    return result;
+                }
+                computer = computerPlay();
+                for (let i = 0; i < 3; i++) {
+                    computerInterface.children.item(i).addEventListener('transitionend', () => {event.target.classList.remove('shining')})
+                }
+                switch (computer) {
+                    case 'Rock':
+                    computerInterface.children.item(0).classList.add('shining');
+                    break;
+                    case 'Paper':
+                    computerInterface.children.item(1).classList.add('shining');
+                    break;
+                    case 'Scissors':
+                    computerInterface.children.item(2).classList.add('shining');
+                    break;
+                }
+                roundNumber++;
+                countRounds();
+                message.textContent = messageRound;
+                if ((human === 'Rock' && computer === 'Paper') || (human === 'Paper' && computer === 'Scissors') || (human === 'Scissors' && computer === 'Rock')) {
+                    winner = 'Computer';
+                    messageDetail.textContent = 'You lost...'
+                    message.appendChild(messageDetail);
+                    death.classList.toggle('visibility');
+                    let timer = setTimeout(function(){death.classList.toggle('visibility')},1000);
+                    computerTotalScore++;
+                    computerScore++;
+                    computerDisplayScore.textContent = computerScore;
+                    return;
+                }
+                else if (human === computer) {
+                    winner = 'Noone';
+                    messageDetail.textContent = 'It is a match.'
+                    message.appendChild(messageDetail);
+                    return;
+                }
+                else {
+                    winner = 'Human';
+                    messageDetail.textContent = 'You won!'
+                    message.appendChild(messageDetail);
+                    life.classList.toggle('visibility');
+                    let timer = setTimeout(function(){life.classList.toggle('visibility')},1000);
+                    humanTotalScore++;
+                    humanScore++;
+                    humanDisplayScore.textContent = humanScore;
+                    return;                    
+                }
+            }
+            weapons.forEach(img => img.style.backgroundColor = '#cc6')
+            message.classList.remove('interactive');
+            message.removeEventListener('click', playRound);
+            window.addEventListener('click', () => {
+                if (roundNumberCurrent === 5) {
+                    setTimeout(function finishGame() {
+                        if (computerScore > humanScore) {
+                            message.textContent = 'You lost this game :(';
+                            messageDetail.textContent = `man:${humanGameScore}comp:${++computerGameScore}`;
+                            message.appendChild(messageDetail);
+                            death.classList.toggle('visibility');
+                            deathClone.classList.toggle('visibility');
+                            deathCloneTwo.classList.toggle('visibility');
+                            body.classList.toggle('death');
+                            setTimeout(function toggleDeath() {
+                                death.classList.toggle('visibility');
+                                deathClone.classList.toggle('visibility');
+                                deathCloneTwo.classList.toggle('visibility');
+                                body.classList.toggle('death');
+                            }, 1000);
+                        }
+                        else if (humanScore > computerScore) {
+                            message.textContent = 'You won this game!'
+                            messageDetail.textContent = `man:${++humanGameScore}comp:${computerGameScore}`;
+                            message.appendChild(messageDetail);
+                            life.classList.toggle('visibility');
+                            lifeClone.classList.toggle('visibility');
+                            lifeCloneTwo.classList.toggle('visibility');
+                            body.classList.toggle('life');
+                            setTimeout(function toggleLife() {
+                                life.classList.toggle('visibility');
+                                lifeClone.classList.toggle('visibility');
+                                lifeCloneTwo.classList.toggle('visibility');
+                                body.classList.toggle('life');
+                            }, 1000);
+                        } else if (humanScore === computerScore) {
+                            message.textContent = 'This game\'s a match.'
+                            messageDetail.textContent = `man:${humanGameScore}comp:${computerGameScore}`;
+                            message.appendChild(messageDetail);
+                        };
+                        computerScore = 0;
+                        computerDisplayScore.textContent = computerTotalScore;
+                        humanScore = 0;
+                        humanDisplayScore.textContent = humanTotalScore;
+                        setTimeout(function finishGameAfter() {
+                            computerDisplayScore.textContent = computerScore;
+                            humanDisplayScore.textContent = humanScore;
+                        }, 2000);
+                    }, 1000);
+                };
+            });
+            function chooseRock() {
+                transitionChosen();
+                singleRound('Rock');
+            }
+            function choosePaper() {
+                transitionChosen();
+                singleRound('Paper');
+            }
+            function chooseScissors() {
+                transitionChosen();
+                singleRound('Scissors');
+            }
+            message.textContent = messageRound;
+            for (let i = 0; i < 3; i++) {
+                humanInterface.children.item(i).addEventListener('transitionend', () => {event.target.classList.remove('shining')})
+            }
+            humanInterface.children.item(0).addEventListener('click', chooseRock);
+            humanInterface.children.item(1).addEventListener('click', choosePaper);
+            humanInterface.children.item(2).addEventListener('click', chooseScissors);
+            return;
+        }
+        message.textContent = 'Wanna play?';
+        message.classList.add('interactive');
+        message.addEventListener('click', playRound);
+    }
+    body.appendChild(input);
+    input.setAttribute('id','input');
+    input.setAttribute('placeholder','WRITE DOWN YOUR NICKNAME')
+    input.addEventListener('change', () => {
+        name = input.value;
+        document.querySelector('#nick').textContent = name;
+        body.removeChild(input);
+        playGame();
+    });
+}
+begin();
+          </script>
+    </body>
+</html>
